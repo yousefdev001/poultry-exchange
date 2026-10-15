@@ -58,3 +58,6 @@ android/key.properties
 # Output Installers & Binaries
 installer/
 *.exe
+
+# Android build artifacts
+/android/build/
