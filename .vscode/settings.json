@@ -1,0 +1,14 @@
+﻿{
+  "java.import.exclusions": [
+    "**/android/**",
+    "**/build/**",
+    "**/.gradle/**",
+    "**/ios/**"
+  ],
+  "java.project.sourcePaths": [],
+  "editor.formatOnSave": true,
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "Dart-Code.dart-code"
+  }
+}

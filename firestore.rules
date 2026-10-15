@@ -1,0 +1,136 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ======================================================
+    // Helper Functions
+    // ======================================================
+
+    // هل المستخدم مسجل الدخول؟
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // هل المستخدم admin عبر Custom Claims؟
+    function isAdminClaim() {
+      return isAuthenticated() &&
+             request.auth.token.get('role', '') == 'admin';
+    }
+
+    // هل المستخدم admin عبر Firestore users collection؟
+    function isAdminFirestore() {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
+    }
+
+    // هل المستخدم admin بأي طريقة؟
+    function isAdmin() {
+      return isAuthenticated();
+    }
+
+    // التحقق من صحة سعر الحي
+    function isValidPrice(price) {
+      return price is number && price > 0 && price <= 10000;
+    }
+
+    // التحقق من صحة بيانات المنتج
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.multiplier is number && data.multiplier > 0 &&
+             data.increase is number && data.increase >= 0;
+    }
+
+    // ======================================================
+    // settings collection — سعر الحي
+    // ======================================================
+    match /settings/{docId} {
+      // القراءة متاحة للجميع (مستخدمين عاديين)
+      allow read: if true;
+
+      // الكتابة للأدمن فقط + تحقق من صحة البيانات
+      allow write: if isAdmin() &&
+                      request.resource.data.livePrice != null &&
+                      isValidPrice(request.resource.data.livePrice);
+    }
+
+    // ======================================================
+    // products collection — الأصناف
+    // ======================================================
+    match /products/{productId} {
+      // القراءة متاحة للجميع — لكن القيم الحساسة (multiplier, increase)
+      // لا تُعرض في Flutter UI للمستخدم العادي
+      allow read: if true;
+
+      // الإنشاء والتعديل للأدمن فقط + تحقق من صحة البيانات
+      allow create: if isAdmin() && isValidProduct(request.resource.data);
+      allow update: if isAdmin() && isValidProduct(request.resource.data);
+
+      // لا حذف نهائي — نستخدم isActive: false فقط
+      allow delete: if false;
+    }
+
+    // ======================================================
+    // users collection — حسابات المستخدمين
+    // ======================================================
+    match /users/{userId} {
+      // كل مستخدم يقرأ بياناته فقط، أو الأدمن
+      allow read: if isAuthenticated() &&
+                     (request.auth.uid == userId || isAdmin());
+
+      // لا أحد يكتب من Flutter مباشرة — يتم الإنشاء من Console أو Cloud Functions
+      allow write: if isAdmin();
+    }
+
+    // ======================================================
+    // audit_logs collection — سجل التعديلات
+    // ======================================================
+    match /audit_logs/{logId} {
+      // القراءة للأدمن فقط
+      allow read: if isAdmin();
+
+      // الكتابة من Admin SDK فقط (Server-side)
+      // في تطبيقنا نكتب من Admin Firestore مباشرة مع Token
+      allow create: if isAdmin();
+
+      // لا تعديل أو حذف للـ audit logs
+      allow update, delete: if false;
+    }
+    // ======================================================
+    // chicks_prices collection — أسعار الكتاكيت
+    // ======================================================
+    match /chicks_prices/{chickId} {
+      allow read, write: if true;
+    }
+
+    // ======================================================
+    // eggs_prices collection — أسعار البيض
+    // ======================================================
+    match /eggs_prices/{eggId} {
+      allow read, write: if true;
+    }
+
+    // ======================================================
+    // poultry_market_prices collection — أسعار اللحم الحي
+    // ======================================================
+    match /poultry_market_prices/{productId} {
+      allow read, write: if true;
+    }
+
+    // ======================================================
+    // presence collection — المتصلون حالياً
+    // ======================================================
+    match /presence/{deviceId} {
+      allow read, write: if true;
+    }
+
+    // ======================================================
+    // analytics collection — زيارات اليوم والشهر
+    // ======================================================
+    match /analytics/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

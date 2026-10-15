@@ -1,0 +1,89 @@
+name: elshams
+description: "تطبيق أسعار دواجن الشمس - عرض وإدارة أسعار الدواجن"
+publish_to: "none"
+
+version: 1.0.1+2
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.0
+  cloud_firestore: ^5.4.0
+
+  # State Management
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.5
+
+  # Functional Programming (Either / Result pattern)
+  dartz: ^0.10.1
+
+  # Dependency Injection
+  get_it: ^8.0.2
+
+  # Routing
+  go_router: ^14.2.0
+
+  # Fonts
+  google_fonts: ^6.2.1
+
+  # Network / Connectivity
+  connectivity_plus: ^6.1.0
+
+  # Local Storage
+  shared_preferences: ^2.3.2
+
+  # Internationalization
+  intl: ^0.20.1
+
+  # Launcher (Phone & WhatsApp)
+  url_launcher: ^6.3.0
+
+  # Icons
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.1
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  mockito: ^5.4.4
+  mocktail: ^1.0.4
+  bloc_test: ^10.0.0
+  build_runner: ^2.4.12
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logo.jpeg
+    - assets/fonts/
+    - assets/images/
+
+  fonts:
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Tajawal-Light.ttf
+          weight: 300
+# ---- App Icon Configuration ----
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/logo.jpeg"
+  adaptive_icon_background: "#FAFAF7"
+  adaptive_icon_foreground: "assets/logo.jpeg"
+  min_sdk_android: 21
+  remove_alpha_ios: true
